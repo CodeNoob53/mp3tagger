@@ -14,8 +14,7 @@
 
   <header class="app-header">
     <div class="app-header__brand">
-      <svg class="app-logo" viewBox="0 0 24 24" aria-hidden="true" width="28" height="28"><path fill="currentColor" d="M9 3v10.55A4 4 0 1 0 11 17V7h6v6.55A4 4 0 1 0 19 17V3H9z"/></svg>
-      <h1>Aurela Tag Studio</h1>
+      <img class="app-brand-logo" src="aurela-logo.svg" alt="Aurela Tag Studio" />
       <span class="app-tagline">MP3 / WAV metadata editor &amp; converter</span>
     </div>
     <div class="app-header__actions">
@@ -76,21 +75,25 @@
 
     <!-- Editor -->
     <section class="panel editor-grid" aria-labelledby="editor-heading" id="editor-section" hidden>
-      <h2 id="editor-heading" class="visually-hidden">Edit selected file</h2>
+      <header class="editor-shell-head">
+        <div class="editor-shell-head__copy">
+          <span class="editor-kicker">Metadata editor</span>
+          <h2 id="editor-heading">Edit audio details</h2>
+          <p id="editing-filename" class="editing-filename">—</p>
+        </div>
+        <span class="editor-local-badge">Changes stay on this device</span>
+      </header>
 
       <div class="editor-col editor-col--tags">
         <form id="tag-form" novalidate>
-          <div class="editor-head">
-            <h3 id="editing-filename" class="editing-filename">—</h3>
-            <p id="wav-compat-note" class="note note--warn" hidden></p>
-          </div>
+          <p id="wav-compat-note" class="note note--warn editor-notice" hidden></p>
 
           <fieldset>
             <legend>Basic</legend>
             <div class="form-grid">
               <div class="field field--wide"><label for="f-title">Title</label><input id="f-title" name="title" type="text" autocomplete="off" /></div>
-              <div class="field field--wide"><label for="f-artist">Artist</label><input id="f-artist" name="artist" type="text" autocomplete="off" /></div>
-              <div class="field field--wide"><label for="f-album">Album</label><input id="f-album" name="album" type="text" autocomplete="off" /></div>
+              <div class="field"><label for="f-artist">Artist</label><input id="f-artist" name="artist" type="text" autocomplete="off" /></div>
+              <div class="field"><label for="f-album">Album</label><input id="f-album" name="album" type="text" autocomplete="off" /></div>
               <div class="field"><label for="f-albumArtist">Album artist</label><input id="f-albumArtist" name="albumArtist" type="text" /></div>
               <div class="field"><label for="f-genre">Genre</label><input id="f-genre" name="genre" type="text" list="genre-list" /></div>
               <div class="field field--xs"><label for="f-track">Track #</label><input id="f-track" name="track" type="text" inputmode="numeric" /></div>
@@ -147,17 +150,17 @@
 
           <div id="validation-output-wrap"><output id="validation-output" for="tag-form" aria-live="polite"></output></div>
 
-          <div class="form-actions">
+          <p class="note editor-save-note">Saving tags rewrites only the tag section — the audio stream is copied without re-encoding. Your original file on disk is never modified.</p>
+          <div class="form-actions editor-actions">
             <button type="submit" id="save-tags-btn" class="btn btn--primary">Save tags</button>
             <button type="button" id="revert-tags-btn" class="btn btn--ghost">Revert</button>
             <button type="button" id="download-file-btn" class="btn" disabled>Download result</button>
           </div>
-          <p class="note">Saving tags rewrites only the tag section — the audio stream is copied without re-encoding. Your original file on disk is never modified.</p>
         </form>
       </div>
 
       <div class="editor-col editor-col--side">
-        <section aria-labelledby="artwork-heading" class="subpanel">
+        <section aria-labelledby="artwork-heading" class="subpanel subpanel--artwork">
           <h3 id="artwork-heading">Cover art</h3>
           <div id="artwork-area" class="artwork-area">
             <div id="artwork-preview" class="artwork-preview" tabindex="0" role="button" aria-label="Add or replace cover art. Drop an image, paste from clipboard, or press Enter to browse.">
@@ -177,7 +180,7 @@
           </div>
         </section>
 
-        <section aria-labelledby="tech-heading" class="subpanel">
+        <section aria-labelledby="tech-heading" class="subpanel subpanel--tech">
           <h3 id="tech-heading">Technical info</h3>
           <dl id="tech-info" class="tech-info"></dl>
           <div id="wav-chunks-wrap" hidden>
@@ -186,7 +189,7 @@
           </div>
         </section>
 
-        <section aria-labelledby="convert-heading" class="subpanel" id="conversion-panel">
+        <section aria-labelledby="convert-heading" class="subpanel subpanel--convert" id="conversion-panel">
           <h3 id="convert-heading">Convert</h3>
           <form id="conversion-form">
             <p id="conversion-explain" class="note"></p>

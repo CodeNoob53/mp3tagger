@@ -10,8 +10,12 @@
   top: 0;
   z-index: 20;
 }
-.app-header__brand { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; }
-.app-logo { align-self: center; color: var(--c-accent); flex: none; }
+.app-header__brand { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.app-brand-logo { width: 150px; height: 44px; object-fit: contain; object-position: left center; flex: none; }
+[data-theme="dark"] .app-brand-logo { filter: invert(1); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .app-brand-logo { filter: invert(1); }
+}
 .app-tagline { color: var(--c-text-dim); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .app-header__actions { display: flex; align-items: center; gap: var(--space-3); flex: none; }
 
@@ -42,18 +46,58 @@
 
 .editor-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
   gap: var(--space-5);
+  align-items: start;
+}
+.editor-shell-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--c-border);
+}
+.editor-shell-head__copy { min-width: 0; }
+.editor-kicker {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.editor-local-badge {
+  flex: none;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--c-ok) 38%, var(--c-border));
+  border-radius: 99px;
+  color: var(--c-ok);
+  background: color-mix(in srgb, var(--c-ok) 8%, transparent);
+  font-size: 0.72rem;
+  font-weight: 650;
 }
 .editor-col { min-width: 0; }
-.editor-col--side { display: grid; gap: var(--space-4); align-content: start; }
+.editor-col--side {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  position: sticky;
+  top: 84px;
+}
 .subpanel {
   border: 1px solid var(--c-border);
   border-radius: var(--radius-m);
   padding: var(--space-4);
-  background: var(--c-surface-2);
+  background: color-mix(in srgb, var(--c-surface-2) 72%, var(--c-surface));
 }
-.subpanel > h3 { margin-bottom: var(--space-3); }
+.subpanel > h3 {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--c-border) 70%, transparent);
+}
 
 .app-footer {
   max-width: 1280px;
