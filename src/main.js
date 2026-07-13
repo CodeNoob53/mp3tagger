@@ -19,6 +19,8 @@ import { initConversionPanel } from './components/conversion-panel.js';
 import { initProgressPanel } from './components/progress-panel.js';
 import { initConfirmDialog, confirmDialog } from './components/confirmation-dialog.js';
 import { initBatchPanel } from './components/batch-panel.js';
+import { initEditorTabs } from './components/editor-tabs.js';
+import { initStepIndicator } from './components/step-indicator.js';
 
 import { on, getSelectedFiles, emit } from './modules/app-state.js';
 import { clearSession, removeFile, getBuffer } from './modules/file-manager.js';
@@ -96,6 +98,8 @@ function init() {
   initConversionPanel();
   initProgressPanel();
   initBatchPanel();
+  initEditorTabs();
+  initStepIndicator();
 
   document.getElementById('clear-session-btn').addEventListener('click', async () => {
     const ok = await confirmDialog('Clear session?', 'All files, edits and prepared downloads will be discarded. Files on your disk are not affected.', 'Clear');

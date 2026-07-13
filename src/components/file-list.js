@@ -43,17 +43,17 @@ function renderRow(f) {
 
   const nameCell = h('td', { class: 'cell-name', title: f.name }, f.name);
   tr.append(nameCell);
-  tr.append(h('td', {}, f.format ? f.format.toUpperCase() : '…'));
-  tr.append(h('td', {}, formatDuration(f.meta.duration)));
-  tr.append(h('td', {}, f.meta.bitrate ? `${f.meta.bitrate} kbps` : '—'));
-  tr.append(h('td', {}, f.meta.sampleRate ? `${(f.meta.sampleRate / 1000).toFixed(1)} kHz` : '—'));
-  tr.append(h('td', {}, f.meta.channels ?? '—'));
-  tr.append(h('td', {}, formatBytes(f.size)));
+  tr.append(h('td', { class: `cell-format${f.format === 'wav' ? ' cell-format--wav' : ''}` }, f.format ? f.format.toUpperCase() : '…'));
+  tr.append(h('td', { class: 'cell-mono' }, formatDuration(f.meta.duration)));
+  tr.append(h('td', { class: 'cell-mono' }, f.meta.bitrate ? `${f.meta.bitrate} kbps` : '—'));
+  tr.append(h('td', { class: 'cell-mono' }, f.meta.sampleRate ? `${(f.meta.sampleRate / 1000).toFixed(1)} kHz` : '—'));
+  tr.append(h('td', { class: 'cell-mono' }, f.meta.channels ?? '—'));
+  tr.append(h('td', { class: 'cell-mono' }, formatBytes(f.size)));
 
   const tagBits = [];
   if (f.meta.tagTypes?.length) tagBits.push(f.meta.tagTypes.join(', '));
   if (f.cover) tagBits.push('art');
-  tr.append(h('td', {}, tagBits.join(' + ') || 'none'));
+  tr.append(h('td', { class: 'cell-mono' }, tagBits.join(' + ') || 'none'));
 
   const [label, kind] = STATUS_LABEL[f.status] ?? [f.status, 'ready'];
   const pill = h('span', { class: `status-pill status-pill--${kind}` }, f.error ? `${label}` : label);

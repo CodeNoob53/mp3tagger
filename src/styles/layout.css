@@ -10,28 +10,60 @@
   top: 0;
   z-index: 20;
 }
-.app-header__brand { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
-.app-brand-logo { width: 150px; height: 44px; object-fit: contain; object-position: left center; flex: none; }
-[data-theme="dark"] .app-brand-logo { filter: invert(1); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .app-brand-logo { filter: invert(1); }
-}
-.app-tagline { color: var(--c-text-dim); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-header__brand { display: flex; align-items: center; gap: var(--space-5); min-width: 0; }
+.app-brand-logo { height: 24px; width: auto; flex: none; color: var(--c-text); }
 .app-header__actions { display: flex; align-items: center; gap: var(--space-3); flex: none; }
+
+/* Workflow step indicator (1 Import → 2 Library → 3 Edit) */
+.app-steps { display: flex; align-items: center; gap: var(--space-3); }
+.app-step { display: flex; align-items: center; gap: 8px; }
+.app-step__dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--c-surface-2);
+  color: var(--c-text-dim);
+  transition: background var(--transition), color var(--transition);
+}
+.app-step__label { font-size: 0.82rem; font-weight: 600; color: var(--c-text-dim); transition: color var(--transition); }
+.app-step.is-current .app-step__dot { background: var(--c-accent); color: var(--c-accent-text); }
+.app-step.is-current .app-step__label { color: var(--c-text); }
+.app-steps__arrow { color: var(--c-text-dim); font-size: 0.82rem; user-select: none; }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-2);
+  color: var(--c-text);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+}
+.theme-toggle:hover { background: var(--c-surface-2); }
+.theme-toggle__icon { flex: none; }
+.theme-toggle__icon--sun { display: none; }
+[data-theme="dark"] .theme-toggle__icon--sun { display: block; }
+[data-theme="dark"] .theme-toggle__icon--moon { display: none; }
 
 .app-main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-5);
+  padding: var(--space-6) var(--space-6) var(--space-6);
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .panel {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-l);
-  padding: var(--space-5);
+  padding: var(--space-5) var(--space-6);
   box-shadow: var(--shadow-1);
 }
 .panel__header {
@@ -62,22 +94,23 @@
 .editor-shell-head__copy { min-width: 0; }
 .editor-kicker {
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   color: var(--c-accent);
+  font-family: var(--font-mono);
   font-size: 0.68rem;
-  font-weight: 750;
-  letter-spacing: 0.09em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .editor-local-badge {
   flex: none;
-  padding: 0.35rem 0.65rem;
-  border: 1px solid color-mix(in srgb, var(--c-ok) 38%, var(--c-border));
-  border-radius: 99px;
-  color: var(--c-ok);
-  background: color-mix(in srgb, var(--c-ok) 8%, transparent);
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--c-accent);
+  border-radius: var(--radius-pill);
+  color: var(--c-accent);
+  background: transparent;
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 700;
 }
 .editor-col { min-width: 0; }
 .editor-col--side {
@@ -89,20 +122,16 @@
 }
 .subpanel {
   border: 1px solid var(--c-border);
-  border-radius: var(--radius-m);
-  padding: var(--space-4);
-  background: color-mix(in srgb, var(--c-surface-2) 72%, var(--c-surface));
+  border-radius: 20px;
+  padding: var(--space-5);
+  background: var(--c-surface);
 }
-.subpanel > h3 {
-  margin-bottom: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--c-border) 70%, transparent);
-}
+.subpanel > h3 { margin-bottom: var(--space-3); }
 
 .app-footer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-4) var(--space-5) var(--space-6);
+  padding: var(--space-4) var(--space-6) var(--space-6);
   color: var(--c-text-dim);
   font-size: 0.8rem;
   display: grid;

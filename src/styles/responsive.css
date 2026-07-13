@@ -9,14 +9,15 @@
   .editor-grid { grid-template-columns: 1fr; }
   .editor-col--side { position: static; }
   .cropper-layout { grid-template-columns: 1fr; }
+  .app-steps { display: none; }
 }
 
 @media (max-width: 720px) {
   .app-main { padding: var(--space-3); gap: var(--space-3); }
   .panel { padding: var(--space-4); border-radius: var(--radius-m); }
   .app-header { padding-inline: var(--space-3); }
-  .app-brand-logo { width: 128px; height: 38px; }
-  .app-tagline { display: none; }
+  .app-brand-logo { height: 20px; }
+  .theme-toggle__label { display: none; }
   .editor-shell-head { align-items: flex-start; }
   .editor-local-badge { display: none; }
   .file-table th:nth-child(6), .file-table td:nth-child(6),
@@ -32,7 +33,9 @@
   .file-table th:nth-child(10), .file-table td:nth-child(10) { display: none; }
   .form-grid { grid-template-columns: 1fr; }
   .panel__toolbar { width: 100%; }
-  .app-brand-logo { width: 110px; height: 34px; }
+  .app-brand-logo { height: 18px; }
   .privacy-badge { display: none; }
   .drop-zone { padding: var(--space-4); }
+  .editor-tabs { width: 100%; }
+  .editor-tab { flex: 1; padding-inline: var(--space-2); }
 }

@@ -1,12 +1,15 @@
 :root {
-  --font-sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  /* Type — Aurela redesign: Rubik display / Inter body / JetBrains Mono.
+     Local stacks only (no webfont download) to honour the privacy promise. */
+  --font-display: "Rubik", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Inter", "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 
-  --radius-s: 6px;
-  --radius-m: 10px;
-  --radius-l: 14px;
-  --shadow-1: 0 1px 3px rgb(0 0 0 / 12%);
-  --shadow-2: 0 6px 24px rgb(0 0 0 / 18%);
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+  --radius-ctl: 12px;
+  --radius-pill: 100px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -16,44 +19,74 @@
   --transition: 160ms ease;
 
   color-scheme: light;
-  --c-bg: #f4f5f7;
+  --c-bg: #e8eaf1;
+  --c-bg-1: #f0f2f8;
   --c-surface: #ffffff;
-  --c-surface-2: #eceef1;
-  --c-border: #d5d9e0;
-  --c-text: #1b1f26;
-  --c-text-dim: #5a6472;
-  --c-accent: #2557d6;
+  --c-surface-2: #f5f6fc;
+  --c-border: #e3e6ef;
+  --c-border-2: #d3d7e3;
+  --c-text: #0d0e14;
+  --c-text-2: #2a2d3e;
+  --c-text-dim: #5a5d72;
+
+  --c-accent: #1f9d63;
+  --c-accent-strong: #15814f;
+  --c-accent-tint: rgb(31 157 99 / 8%);
   --c-accent-text: #ffffff;
-  --c-accent-hover: #1c46b3;
-  --c-danger: #c02929;
-  --c-warn-bg: #fdf3d7;
-  --c-warn-border: #e5c96b;
-  --c-warn-text: #6b5411;
-  --c-ok: #1d7a3d;
-  --c-focus: #2557d6;
-  --c-row-hover: #f0f4ff;
-  --c-row-selected: #e3ebff;
+  --c-accent-hover: #15814f;
+
+  --c-comp: #c08a3e;
+  --c-org: #3f72b0;
+
+  --c-danger: #c25f74;
+  --c-danger-bg: #fbeaee;
+  --c-warn-bg: #fbf3e4;
+  --c-warn-border: #e8d5ac;
+  --c-warn-text: #7a5a1f;
+  --c-ok: #15814f;
+  --c-focus: #1f9d63;
+  --c-row-hover: #f5f6fc;
+  --c-row-selected: rgb(31 157 99 / 8%);
+
+  --shadow-1: 0 24px 60px -20px rgb(13 14 20 / 16%);
+  --shadow-2: 0 24px 60px -20px rgb(13 14 20 / 26%);
+  --c-overlay: rgb(13 14 20 / 45%);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --c-bg: #14161a;
-  --c-surface: #1e2127;
-  --c-surface-2: #262a31;
-  --c-border: #363c46;
-  --c-text: #e6e9ee;
-  --c-text-dim: #9aa4b1;
-  --c-accent: #6c9bff;
-  --c-accent-text: #10131a;
-  --c-accent-hover: #85acff;
-  --c-danger: #ff7a7a;
-  --c-warn-bg: #3a320f;
-  --c-warn-border: #6b5a1d;
-  --c-warn-text: #e8d48a;
-  --c-ok: #6fd598;
-  --c-focus: #8ab2ff;
-  --c-row-hover: #232b3d;
-  --c-row-selected: #2a3550;
+  --c-bg: #0f0f0f;
+  --c-bg-1: #141414;
+  --c-surface: #1a1a1a;
+  --c-surface-2: #2a2a2a;
+  --c-border: #262626;
+  --c-border-2: #3a3a3a;
+  --c-text: #fcfcfc;
+  --c-text-2: #cfcfcf;
+  --c-text-dim: #8a8a8a;
+
+  --c-accent: #ff9933;
+  --c-accent-strong: #e6822a;
+  --c-accent-tint: rgb(255 153 51 / 16%);
+  --c-accent-text: #1c1204;
+  --c-accent-hover: #ffab55;
+
+  --c-comp: #dcae5e;
+  --c-org: #6f9fe0;
+
+  --c-danger: #dd90a1;
+  --c-danger-bg: rgb(221 144 161 / 14%);
+  --c-warn-bg: #2a2110;
+  --c-warn-border: #4d3d1c;
+  --c-warn-text: #f1c47e;
+  --c-ok: #ff9933;
+  --c-focus: #ff9933;
+  --c-row-hover: #222222;
+  --c-row-selected: rgb(255 153 51 / 12%);
+
+  --shadow-1: 0 24px 60px -20px rgb(0 0 0 / 70%);
+  --shadow-2: 0 24px 60px -20px rgb(0 0 0 / 85%);
+  --c-overlay: rgb(0 0 0 / 80%);
 }
 
 @media (prefers-reduced-motion: reduce) {

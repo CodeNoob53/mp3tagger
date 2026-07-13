@@ -14,6 +14,8 @@ function stored() {
 /** Apply theme: 'light' | 'dark'. */
 function apply(theme) {
   document.documentElement.dataset.theme = theme;
+  const label = document.getElementById('theme-toggle-label');
+  if (label) label.textContent = theme === 'dark' ? 'Dark' : 'Light';
 }
 
 /** Initialize on startup and wire the toggle button. @param {HTMLElement} toggleBtn */
