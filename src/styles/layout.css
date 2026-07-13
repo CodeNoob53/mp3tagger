@@ -64,7 +64,7 @@
   border: 1px solid var(--c-border);
   border-radius: var(--radius-l);
   padding: var(--space-5) var(--space-6);
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-panel);
 }
 .panel__header {
   display: flex;

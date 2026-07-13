@@ -50,6 +50,7 @@
 
   --shadow-1: 0 24px 60px -20px rgb(13 14 20 / 16%);
   --shadow-2: 0 24px 60px -20px rgb(13 14 20 / 26%);
+  --shadow-panel: 6px 6px 12px #00000021, -6px -6px 12px #ffffff70;
   --c-overlay: rgb(13 14 20 / 45%);
 }
 
@@ -86,6 +87,7 @@
 
   --shadow-1: 0 24px 60px -20px rgb(0 0 0 / 70%);
   --shadow-2: 0 24px 60px -20px rgb(0 0 0 / 85%);
+  --shadow-panel: 6px 6px 12px #00000052, -6px -6px 12px #0d0d0d;
   --c-overlay: rgb(0 0 0 / 80%);
 }
 

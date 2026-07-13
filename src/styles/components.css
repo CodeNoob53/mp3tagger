@@ -153,7 +153,10 @@
 .editor-tabs {
   display: flex;
   gap: 4px;
-  background: var(--c-surface-2);
+  background: color-mix(in srgb, var(--c-surface-2) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--c-text) 8%, transparent);
   padding: 4px;
   border-radius: var(--radius-pill);
   margin-bottom: var(--space-4);
@@ -169,7 +172,13 @@
   color: var(--c-text-dim);
   transition: background var(--transition), color var(--transition);
 }
-.editor-tab[aria-selected="true"] { background: var(--c-surface); color: var(--c-text); box-shadow: 0 1px 4px rgb(13 14 20 / 8%); }
+.editor-tab[aria-selected="true"] {
+  background: color-mix(in srgb, var(--c-surface) 65%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--c-text);
+  box-shadow: 0 1px 4px rgb(13 14 20 / 8%), inset 0 0 0 1px color-mix(in srgb, var(--c-text) 6%, transparent);
+}
 .editor-col--tags fieldset[data-tab] { border-top: none; padding-top: 0; }
 .editor-col--tags fieldset[data-tab] > legend { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
@@ -267,6 +276,10 @@ output#validation-output { display: block; color: var(--c-danger); font-size: 0.
   border: 1px solid var(--c-border);
   padding: var(--space-5) var(--space-6);
   max-width: min(560px, 92vw);
+  max-height: calc(100vh - 2 * var(--space-6));
+  position: fixed;
+  inset: 0;
+  margin: auto;
 }
 .dialog--wide { max-width: min(960px, 94vw); width: 100%; }
 .dialog::backdrop { background: var(--c-overlay); }
