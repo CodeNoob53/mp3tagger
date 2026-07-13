@@ -101,7 +101,8 @@ function modelToId3Frames(t) {
  * Write WAV metadata.
  * @param {Uint8Array} u8 original file
  * @param {import('./audio-metadata-reader.js').NormalizedTags} tagModel
- * @param {{ writeId3Chunk?: boolean, cover?: { mime: string, data: Uint8Array }|null }} [opts]
+ * @param {{ writeId3Chunk?: boolean, cover?: { mime: string, data: Uint8Array }|null,
+ *   infoEncoding?: 'utf-8'|'windows-1251' }} [opts]
  * @returns {{ bytes: Uint8Array, written: string[], skipped: string[] }}
  *   written: fields stored; skipped: non-empty fields that could not be stored
  */
@@ -123,10 +124,11 @@ export function writeWavTags(u8, tagModel, opts = {}) {
   } else if (opts.cover) {
     skipped.push('cover');
   }
-  const bytes = writeWavMetadata(u8, Object.keys(info).length ? info : null, id3Bytes);
-  // RIFF INFO has no standard text encoding. We write UTF-8 (like modern tools),
-  // but many players decode INFO as Latin-1 / system codepage, so non-ASCII
-  // values may display garbled there. The id3 chunk carries proper Unicode.
+  const bytes = writeWavMetadata(u8, Object.keys(info).length ? info : null, id3Bytes, {
+    infoEncoding: opts.infoEncoding,
+  });
+  // RIFF INFO has no standard text encoding. The default is UTF-8; conversion
+  // can target a Windows ANSI code page while an ID3 chunk preserves Unicode.
   const nonAscii = Object.values(info).some((v) => /[^\x20-\x7e]/.test(v));
   return { bytes, written, skipped, nonAsciiInfo: nonAscii };
 }

@@ -7,6 +7,39 @@
 const td = new TextDecoder('latin1');
 const te = new TextEncoder();
 
+const CP1251_SPECIAL = new Map([
+  [0x0401, 0xa8], [0x0451, 0xb8], // Ё ё
+  [0x0404, 0xaa], [0x0454, 0xba], // Є є
+  [0x0406, 0xb2], [0x0456, 0xb3], // І і
+  [0x0407, 0xaf], [0x0457, 0xbf], // Ї ї
+  [0x0490, 0xa5], [0x0491, 0xb4], // Ґ ґ
+  [0x2018, 0x91], [0x2019, 0x92],
+  [0x201c, 0x93], [0x201d, 0x94],
+  [0x2013, 0x96], [0x2014, 0x97],
+  [0x2026, 0x85], [0x2116, 0xb9],
+]);
+
+/** Encode a string only when every character is representable in Windows-1251. */
+function encodeWindows1251(value) {
+  const bytes = [];
+  for (const char of value) {
+    const code = char.codePointAt(0);
+    if (code <= 0x7f) bytes.push(code);
+    else if (code >= 0x0410 && code <= 0x044f) bytes.push(code - 0x350);
+    else if (CP1251_SPECIAL.has(code)) bytes.push(CP1251_SPECIAL.get(code));
+    else return null;
+  }
+  return new Uint8Array(bytes);
+}
+
+function decodeInfoText(raw) {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(raw);
+  } catch {
+    return new TextDecoder('windows-1251').decode(raw);
+  }
+}
+
 /**
  * @typedef {Object} RiffChunk
  * @property {string} id fourcc
@@ -73,13 +106,12 @@ export function readInfo(u8) {
   const out = {};
   let off = list.dataOffset + 4;
   const end = list.dataOffset + list.size;
-  const utf8 = new TextDecoder('utf-8', { fatal: false });
   while (off + 8 <= end) {
     const id = fourcc(dv, off);
     const size = dv.getUint32(off + 4, true);
     if (off + 8 + size > end + 1) break;
     const raw = u8.subarray(off + 8, off + 8 + size);
-    let str = utf8.decode(raw);
+    let str = decodeInfoText(raw);
     const nul = str.indexOf('\u0000');
     if (nul !== -1) str = str.slice(0, nul);
     out[id] = str;
@@ -117,12 +149,20 @@ export function readId3Chunk(u8) {
   return c ? u8.slice(c.dataOffset, c.dataOffset + c.size) : null;
 }
 
-/** Build a LIST-INFO chunk from a key/value map. @param {Record<string,string>} info */
-function buildInfoChunk(info) {
+/**
+ * Build a LIST-INFO chunk from a key/value map.
+ * @param {Record<string,string>} info
+ * @param {'utf-8'|'windows-1251'} encoding
+ */
+function buildInfoChunk(info, encoding = 'utf-8') {
   const parts = [];
   for (const [id, value] of Object.entries(info)) {
     if (!value) continue;
-    const data = te.encode(`${value}\u0000`); // NUL-terminated
+    const text = `${value}\u0000`;
+    // RIFF INFO has no Unicode encoding marker. Windows players commonly use
+    // the current ANSI code page, so conversion may explicitly target CP1251.
+    // If a value is not representable, keep it lossless as UTF-8 instead.
+    const data = encoding === 'windows-1251' ? (encodeWindows1251(text) ?? te.encode(text)) : te.encode(text);
     const padded = data.byteLength + (data.byteLength % 2);
     const buf = new Uint8Array(8 + padded);
     buf.set(te.encode(id.padEnd(4).slice(0, 4)), 0);
@@ -157,9 +197,10 @@ function buildId3Chunk(id3Bytes) {
  * @param {Uint8Array} u8 original file
  * @param {Record<string,string>|null} info INFO map (null = remove INFO chunk)
  * @param {Uint8Array|null} [id3Bytes] raw ID3v2 tag to embed (null = remove)
+ * @param {{ infoEncoding?: 'utf-8'|'windows-1251' }} [opts]
  * @returns {Uint8Array} new file
  */
-export function writeWavMetadata(u8, info, id3Bytes = null) {
+export function writeWavMetadata(u8, info, id3Bytes = null, opts = {}) {
   const { chunks } = parseRiff(u8);
   const kept = [];
   for (const c of chunks) {
@@ -169,7 +210,7 @@ export function writeWavMetadata(u8, info, id3Bytes = null) {
     const total = 8 + c.size + (c.size % 2);
     kept.push(u8.subarray(c.offset, Math.min(c.offset + total, u8.byteLength)));
   }
-  const infoChunk = info ? buildInfoChunk(info) : null;
+  const infoChunk = info ? buildInfoChunk(info, opts.infoEncoding) : null;
   const id3Chunk = id3Bytes ? buildId3Chunk(id3Bytes) : null;
 
   let size = 4; // 'WAVE'

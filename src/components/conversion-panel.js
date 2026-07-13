@@ -65,7 +65,11 @@ async function run() {
           cover: f.cover ? { mime: f.cover.format, data: f.cover.data } : undefined,
         });
       } else {
-        out = writeWavTags(out, f.tags, {}).bytes;
+        out = writeWavTags(out, f.tags, {
+          writeId3Chunk: true,
+          infoEncoding: 'windows-1251',
+          cover: f.cover ? { mime: f.cover.format, data: f.cover.data } : undefined,
+        }).bytes;
       }
     } catch (tagErr) {
       notify.warning(`Converted, but tags could not be copied: ${tagErr.message}`);

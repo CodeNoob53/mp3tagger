@@ -99,6 +99,20 @@ describe('writeWavMetadata', () => {
     const out = writeWavMetadata(load('wav-plain.wav'), { INAM: 'Назва 標題' });
     expect(readInfo(out).INAM).toBe('Назва 標題');
   });
+
+  it('writes and reads Ukrainian INFO using Windows-1251', () => {
+    const out = writeWavMetadata(
+      load('wav-plain.wav'),
+      { INAM: 'Чари Ночі' },
+      null,
+      { infoEncoding: 'windows-1251' },
+    );
+    const list = parseRiff(out).chunks.find((c) => c.id === 'LIST' && c.listType === 'INFO');
+    const rawValue = out.slice(list.dataOffset + 12, list.dataOffset + 22);
+
+    expect([...rawValue]).toEqual([0xd7, 0xe0, 0xf0, 0xe8, 0x20, 0xcd, 0xee, 0xf7, 0xb3, 0x00]);
+    expect(readInfo(out).INAM).toBe('Чари Ночі');
+  });
 });
 
 describe('wav-tag-service', () => {
@@ -118,5 +132,16 @@ describe('wav-tag-service', () => {
     const { bytes, skipped } = writeWavTags(src, model, { writeId3Chunk: true });
     expect(skipped).toEqual([]);
     expect(readId3Chunk(bytes)).not.toBeNull();
+  });
+
+  it('keeps Unicode in ID3 while making INFO compatible with Windows Cyrillic', () => {
+    const src = load('wav-plain.wav');
+    const { bytes } = writeWavTags(src, { title: 'Чари Ночі', artist: 'Lost Poets' }, {
+      writeId3Chunk: true,
+      infoEncoding: 'windows-1251',
+    });
+
+    expect(readBackInfo(bytes)).toMatchObject({ INAM: 'Чари Ночі', IART: 'Lost Poets' });
+    expect(readId3Chunk(bytes)?.slice(0, 3)).toEqual(new Uint8Array([0x49, 0x44, 0x33]));
   });
 });
