@@ -149,20 +149,41 @@
 .status-pill--error { color: var(--c-danger); background: var(--c-danger-bg); }
 .status-pill--done { color: var(--c-accent-text); background: var(--c-accent); }
 
-/* Editor form tabs */
+/* Editor form tabs — layered glass: noise grain + specular edge, not just blur
+   (backdrop-filter alone does nothing over a flat background). */
 .editor-tabs {
+  --glass-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  position: relative;
+  isolation: isolate;
   display: flex;
   gap: 4px;
-  background: color-mix(in srgb, var(--c-surface-2) 55%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c-surface) 55%, transparent), color-mix(in srgb, var(--c-surface-2) 40%, transparent));
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border: 1px solid color-mix(in srgb, var(--c-text) 8%, transparent);
   padding: 4px;
   border-radius: var(--radius-pill);
   margin-bottom: var(--space-4);
   width: fit-content;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 45%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, black 10%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--c-text) 7%, transparent),
+    0 6px 16px -8px rgb(13 14 20 / 20%);
+}
+.editor-tabs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--glass-noise);
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
 }
 .editor-tab {
+  position: relative;
+  z-index: 1;
   font-weight: 700;
   font-size: 0.82rem;
   padding: 0.55rem 1.15rem;
@@ -170,14 +191,15 @@
   border: none;
   background: transparent;
   color: var(--c-text-dim);
-  transition: background var(--transition), color var(--transition);
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
 }
 .editor-tab[aria-selected="true"] {
-  background: color-mix(in srgb, var(--c-surface) 65%, transparent);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--c-surface) 78%, transparent);
   color: var(--c-text);
-  box-shadow: 0 1px 4px rgb(13 14 20 / 8%), inset 0 0 0 1px color-mix(in srgb, var(--c-text) 6%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 55%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--c-text) 6%, transparent),
+    0 1px 4px rgb(13 14 20 / 10%);
 }
 .editor-col--tags fieldset[data-tab] { border-top: none; padding-top: 0; }
 .editor-col--tags fieldset[data-tab] > legend { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
