@@ -28,7 +28,11 @@ function renderRow(f) {
   const check = h('input', { type: 'checkbox', 'aria-label': `Select ${f.name}` });
   check.checked = state.selection.has(f.id);
   check.addEventListener('click', (ev) => ev.stopPropagation());
-  check.addEventListener('change', () => toggleSelected(f.id, check.checked));
+  check.addEventListener('change', () => {
+    toggleSelected(f.id, check.checked);
+    // opening the editor on first interaction is less confusing than an empty page
+    if (check.checked && !state.activeId) setActive(f.id);
+  });
   tr.append(h('td', {}, check));
 
   ensureThumb(f);

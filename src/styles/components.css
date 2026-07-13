@@ -54,20 +54,20 @@
 .drop-zone .btn { margin-top: var(--space-2); }
 
 /* File table */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; scrollbar-width: thin; }
 .file-table { width: 100%; font-size: 0.85rem; }
 .file-table th {
   text-align: left;
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   color: var(--c-text-dim);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-2);
   border-bottom: 2px solid var(--c-border);
   white-space: nowrap;
 }
 .file-table td {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-2);
   border-bottom: 1px solid var(--c-border);
   vertical-align: middle;
   white-space: nowrap;

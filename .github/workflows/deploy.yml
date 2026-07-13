@@ -18,12 +18,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+
+      # Creates/enables the Pages site if it does not exist yet
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Install dependencies
         run: npm ci
@@ -35,8 +40,8 @@ jobs:
         run: npm test
 
       - name: Build
-        # For a project page the default base '/mp3tagger/' is used.
-        # For a user root page set VITE_BASE: '/'
+        # For a project page the default base '/<repo>/' is used.
+        # For a user root page (username.github.io) set VITE_BASE: '/'
         run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/

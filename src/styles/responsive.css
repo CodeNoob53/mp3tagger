@@ -1,3 +1,10 @@
+@media (max-width: 1200px) {
+  /* Ch + Tags columns are secondary; drop them before the table overflows */
+  .file-table th:nth-child(8), .file-table td:nth-child(8),
+  .file-table th:nth-child(10), .file-table td:nth-child(10) { display: none; }
+  .file-table td.cell-name { max-width: 200px; }
+}
+
 @media (max-width: 1000px) {
   .editor-grid { grid-template-columns: 1fr; }
   .cropper-layout { grid-template-columns: 1fr; }

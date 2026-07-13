@@ -8,3 +8,7 @@ p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
 button { cursor: pointer; }
 table { border-collapse: collapse; }
 dialog { border: none; padding: 0; }
+
+/* Author display rules (img{display:block}, .editor-grid{display:grid}, ...)
+   override the UA's [hidden]{display:none}. Restore correct semantics. */
+[hidden] { display: none !important; }
