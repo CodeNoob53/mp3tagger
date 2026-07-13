@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.tmp/
+*.local
+.DS_Store
+tests/fixtures/generated/
+.tmp/

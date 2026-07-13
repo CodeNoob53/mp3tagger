@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MP3 Tagger — Mr. Lazy</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f; --surface: #1a1a1a; --border: #2e2e2e; --border2: #3e3e3e;
+    --text: #e8e8e8; --muted: #888; --accent: #c8ff00; --radius: 10px;
+    --font: 'Courier New', Courier, monospace;
+  }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    min-height: 100vh; display: flex; justify-content: center; padding: 40px 16px;
+  }
+  .card {
+    width: 100%; max-width: 560px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 16px; padding: 32px;
+    height: fit-content;
+  }
+  h1 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+  .sec { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border2); border-radius: var(--radius);
+    padding: 28px; text-align: center; cursor: pointer;
+    transition: background .15s, border-color .15s; margin-bottom: 24px;
+  }
+  .drop-zone:hover, .drop-zone.over { background: #222; border-color: var(--accent); }
+  .drop-zone svg { display: block; margin: 0 auto 8px; color: var(--muted); }
+  .drop-label { font-size: 13px; color: var(--muted); }
+  .drop-label.loaded { color: var(--accent); }
+
+  .meta-block { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+
+  .cover-wrap {
+    width: 96px; height: 96px; flex-shrink: 0; position: relative;
+    border: 1.5px dashed var(--border2); border-radius: var(--radius);
+    cursor: pointer; overflow: hidden; transition: border-color .15s;
+  }
+  .cover-wrap:hover { border-color: var(--accent); }
+  .cover-wrap.has-img { border-style: solid; border-color: #555; }
+  .cover-ph {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 6px; color: var(--muted); font-size: 11px;
+    pointer-events: none;
+  }
+  .cover-wrap img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: none;
+  }
+  .cover-badge {
+    position: absolute; bottom: 4px; right: 4px; background: #1a1a1a;
+    color: var(--accent); font-size: 9px; padding: 2px 5px;
+    border-radius: 4px; letter-spacing: .05em; display: none;
+  }
+
+  .meta-fields { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  input[type=text], input[type=number], select {
+    width: 100%; background: #111; border: 1px solid var(--border2);
+    border-radius: 7px; color: var(--text); font-family: var(--font);
+    font-size: 13px; padding: 9px 12px; outline: none;
+    transition: border-color .15s; -webkit-appearance: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  select { cursor: pointer; }
+  select option { background: #1a1a1a; }
+
+  .btn {
+    width: 100%; padding: 13px; margin-top: 20px;
+    background: var(--accent); color: #000; border: none;
+    border-radius: var(--radius); font-family: var(--font);
+    font-size: 13px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; cursor: pointer; transition: opacity .15s, transform .1s;
+  }
+  .btn:disabled { background: #333; color: var(--muted); cursor: not-allowed; }
+  .btn:hover:not(:disabled) { opacity: .85; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+
+  .status {
+    font-size: 12px; padding: 10px 14px; border-radius: 7px;
+    margin-top: 12px; display: none; white-space: pre-line; line-height: 1.6;
+  }
+  .status.ok  { background: #1a2e14; color: #7ed36a; border: 1px solid #2d4e24; display: block; }
+  .status.err { background: #2e1414; color: #e07070; border: 1px solid #4e2424; display: block; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>MP3 Tagger</h1>
+
+  <div class="drop-zone" id="mp3Drop"
+       ondragover="dv(event,true)" ondragleave="dv(event,false)" ondrop="dropMp3(event)"
+       onclick="document.getElementById('mp3In').click()">
+    <input type="file" id="mp3In" accept=".mp3,audio/mpeg" style="display:none">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="3" x2="12" y2="9"/>
+    </svg>
+    <div class="drop-label" id="mp3Label">Перетягни або натисни щоб вибрати MP3</div>
+  </div>
+
+  <p class="sec">Метадані</p>
+
+  <div class="meta-block">
+    <div class="cover-wrap" id="coverWrap" onclick="document.getElementById('imgIn').click()">
+      <input type="file" id="imgIn" accept="image/*" style="display:none">
+      <div class="cover-ph" id="coverPh">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span>Обкладинка</span>
+      </div>
+      <img id="coverPrev" alt="cover">
+      <div class="cover-badge" id="coverBadge">OK</div>
+    </div>
+
+    <div class="meta-fields">
+      <div class="field">
+        <label>Назва треку</label>
+        <input type="text" id="f_title" placeholder="Track title">
+      </div>
+      <div class="field">
+        <label>Виконавець</label>
+        <input type="text" id="f_artist" placeholder="Artist">
+      </div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label>Альбом</label>
+      <input type="text" id="f_album" placeholder="Album">
+    </div>
+    <div class="field">
+      <label>Рік</label>
+      <input type="number" id="f_year" placeholder="2025" min="1900" max="2100">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Жанр</label>
+    <select id="f_genre">
+      <option value="">— вибрати —</option>
+      <option>Industrial Metal</option><option>Alternative Metal</option><option>Nu Metal</option>
+      <option>Heavy Metal</option><option>Death Metal</option><option>Black Metal</option>
+      <option>Rock</option><option>Alternative Rock</option><option>Electronic</option>
+      <option>House</option><option>Deep House</option><option>Techno</option>
+      <option>Ambient</option><option>Drum and Bass</option><option>Pop</option>
+      <option>Hip-Hop</option><option>Folk</option><option>Classical</option>
+      <option>Other</option>
+    </select>
+  </div>
+
+  <button class="btn" id="tagBtn" disabled onclick="tagAndDownload()">
+    Записати теги та завантажити
+  </button>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let mp3Buf  = null;  // Uint8Array
+let imgBuf  = null;  // Uint8Array
+let imgMime = 'image/jpeg';
+let mp3Name = 'tagged.mp3';
+
+// ── Listeners (addEventListener = надійніше ніж onchange атрибут) ─────────
+document.getElementById('mp3In').addEventListener('change', function() {
+  if (this.files[0]) loadMp3(this.files[0]);
+  this.value = '';
+});
+
+document.getElementById('imgIn').addEventListener('change', function() {
+  if (this.files[0]) loadImg(this.files[0]);
+  this.value = ''; // дозволяє повторно вибрати той самий файл
+});
+
+// ── Drag & drop ───────────────────────────────────────────────────────────
+function dv(e, over) {
+  e.preventDefault();
+  document.getElementById('mp3Drop').classList.toggle('over', over);
+}
+function dropMp3(e) {
+  e.preventDefault();
+  document.getElementById('mp3Drop').classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) loadMp3(f);
+}
+
+// ── Load MP3 ──────────────────────────────────────────────────────────────
+function loadMp3(file) {
+  mp3Name = file.name.replace(/\.mp3$/i, '') + '_tagged.mp3';
+  const lbl = document.getElementById('mp3Label');
+  lbl.textContent = file.name;
+  lbl.classList.add('loaded');
+
+  const r = new FileReader();
+  r.onload = e => {
+    mp3Buf = new Uint8Array(e.target.result);
+    document.getElementById('tagBtn').disabled = false;
+  };
+  r.onerror = () => setStatus('Не вдалося прочитати MP3', false);
+  r.readAsArrayBuffer(file);
+
+  const auto = file.name.replace(/\.mp3$/i,'').replace(/[-_]/g,' ');
+  if (!document.getElementById('f_title').value)
+    document.getElementById('f_title').value = auto;
+}
+
+// ── Load Image ────────────────────────────────────────────────────────────
+function loadImg(file) {
+  // Визначаємо MIME
+  let mime = file.type || '';
+  if (!mime.startsWith('image/')) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const map = { jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png',
+                  webp:'image/webp', gif:'image/gif', bmp:'image/bmp' };
+    mime = map[ext] || 'image/jpeg';
+  }
+  if (mime === 'image/jpg') mime = 'image/jpeg';
+  imgMime = mime;
+
+  const r = new FileReader();
+  r.onload = e => {
+    imgBuf = new Uint8Array(e.target.result); // зберігаємо одразу як Uint8Array
+
+    // Превью через Blob URL
+    const blob = new Blob([imgBuf], { type: imgMime });
+    const url  = URL.createObjectURL(blob);
+    const prev = document.getElementById('coverPrev');
+    prev.onload = () => URL.revokeObjectURL(url);
+    prev.src = url;
+    prev.style.display = 'block';
+
+    document.getElementById('coverPh').style.display    = 'none';
+    document.getElementById('coverBadge').style.display = 'block';
+    document.getElementById('coverWrap').classList.add('has-img');
+  };
+  r.onerror = () => setStatus('Не вдалося прочитати зображення', false);
+  r.readAsArrayBuffer(file);
+}
+
+// ── ID3v2.3 writer ────────────────────────────────────────────────────────
+function utf16le(str) {
+  const out = new Uint8Array(2 + str.length * 2);
+  out[0] = 0xFF; out[1] = 0xFE; // BOM
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    out[2 + i*2]     = c & 0xFF;
+    out[2 + i*2 + 1] = (c >> 8) & 0xFF;
+  }
+  return out;
+}
+
+function makeFrame(id, payload) {
+  const f = new Uint8Array(10 + payload.length);
+  for (let i = 0; i < 4; i++) f[i] = id.charCodeAt(i);
+  const s = payload.length;
+  f[4]=(s>>>24)&0xFF; f[5]=(s>>>16)&0xFF; f[6]=(s>>>8)&0xFF; f[7]=s&0xFF;
+  f.set(payload, 10);
+  return f;
+}
+
+function textFrame(id, str) {
+  const enc = utf16le(str);
+  const p   = new Uint8Array(1 + enc.length);
+  p[0] = 1; p.set(enc, 1); // encoding = UTF-16
+  return makeFrame(id, p);
+}
+
+function apicFrame(imgU8, mime) {
+  // imgU8 вже є Uint8Array — конвертація не потрібна
+  const mimeB = new TextEncoder().encode(mime);
+  // payload: encoding(1) | mime(n) | NUL | picType(1) | descNUL(1) | imgData
+  const p = new Uint8Array(1 + mimeB.length + 1 + 1 + 1 + imgU8.length);
+  let i = 0;
+  p[i++] = 0;                       // ISO-8859-1 для заголовка APIC
+  p.set(mimeB, i); i += mimeB.length;
+  p[i++] = 0;                       // NUL після mime
+  p[i++] = 3;                       // picture type 3 = Cover front
+  p[i++] = 0;                       // NUL (пустий опис)
+  p.set(imgU8, i);                  // самі байти зображення
+  return makeFrame('APIC', p);
+}
+
+function synchsafe4(n) {
+  return new Uint8Array([
+    (n >> 21) & 0x7F, (n >> 14) & 0x7F,
+    (n >>  7) & 0x7F,  n        & 0x7F,
+  ]);
+}
+
+function buildID3(frames) {
+  const bodyLen = frames.reduce((s, f) => s + f.length, 0);
+  const tag = new Uint8Array(10 + bodyLen);
+  tag[0]=0x49;tag[1]=0x44;tag[2]=0x33; // "ID3"
+  tag[3]=0x03;tag[4]=0x00;tag[5]=0x00; // v2.3, no flags
+  tag.set(synchsafe4(bodyLen), 6);
+  let pos = 10;
+  for (const f of frames) { tag.set(f, pos); pos += f.length; }
+  return tag;
+}
+
+function stripOldID3(src) {
+  if (src[0]===0x49 && src[1]===0x44 && src[2]===0x33) {
+    const sz = ((src[6]&0x7F)<<21)|((src[7]&0x7F)<<14)|((src[8]&0x7F)<<7)|(src[9]&0x7F);
+    let skip = 10 + sz;
+    if (src[5] & 0x10) skip += 10; // footer
+    return src.slice(skip);
+  }
+  return src;
+}
+
+// ── Tag & download ────────────────────────────────────────────────────────
+function tagAndDownload() {
+  const btn = document.getElementById('tagBtn');
+  btn.disabled = true;
+  btn.textContent = 'Обробка…';
+  document.getElementById('status').className = 'status';
+
+  try {
+    if (!mp3Buf) throw new Error('MP3 файл не завантажено');
+
+    const v = id => document.getElementById(id).value.trim();
+    const frames = [];
+    if (v('f_title'))  frames.push(textFrame('TIT2', v('f_title')));
+    if (v('f_artist')) frames.push(textFrame('TPE1', v('f_artist')));
+    if (v('f_album'))  frames.push(textFrame('TALB', v('f_album')));
+    const yr = parseInt(document.getElementById('f_year').value) || 0;
+    if (yr) frames.push(textFrame('TYER', String(yr)));
+    if (v('f_genre'))  frames.push(textFrame('TCON', v('f_genre')));
+
+    const hasImg = imgBuf && imgBuf.length > 0;
+    if (hasImg) frames.push(apicFrame(imgBuf, imgMime));
+
+    const id3   = buildID3(frames);
+    const audio = stripOldID3(mp3Buf);
+    const out   = new Uint8Array(id3.length + audio.length);
+    out.set(id3, 0);
+    out.set(audio, id3.length);
+
+    const blob = new Blob([out], { type: 'audio/mpeg' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = mp3Name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+
+    const imgInfo = hasImg
+      ? `Обкладинка: ${imgMime} · ${(imgBuf.length/1024).toFixed(0)} KB`
+      : 'Обкладинка: не вибрано';
+    setStatus(`✓ Збережено: ${mp3Name}\n${imgInfo}`, true);
+
+  } catch (err) {
+    setStatus('✗ Помилка: ' + err.message, false);
+    console.error(err);
+  }
+
+  btn.disabled    = false;
+  btn.textContent = 'Записати теги та завантажити';
+}
+
+function setStatus(msg, ok) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className   = 'status ' + (ok ? 'ok' : 'err');
+}
+</script>
+</body>
+</html>

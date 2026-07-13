@@ -1,0 +1,7 @@
+.u-hidden { display: none !important; }
+.u-mono { font-family: var(--font-mono); }
+.u-dim { color: var(--c-text-dim); }
+.u-danger { color: var(--c-danger); }
+.u-ok { color: var(--c-ok); }
+.u-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.u-break { overflow-wrap: anywhere; }

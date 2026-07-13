@@ -1,0 +1,67 @@
+html { height: 100%; }
+body {
+  min-height: 100%;
+  font-family: var(--font-sans);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 15px;
+}
+
+h1 { font-size: 1.15rem; font-weight: 650; }
+h2 { font-size: 1.05rem; font-weight: 650; }
+h3 { font-size: 0.95rem; font-weight: 650; }
+h4 { font-size: 0.85rem; font-weight: 600; color: var(--c-text-dim); }
+
+a { color: var(--c-accent); }
+
+:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--c-accent);
+  color: var(--c-accent-text);
+  padding: var(--space-2) var(--space-4);
+  z-index: 100;
+  border-radius: 0 0 var(--radius-s) 0;
+}
+.skip-link:focus { left: 0; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+input[type="text"], input[type="url"], input[type="number"], input[type="file"], select, textarea {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-s);
+  transition: border-color var(--transition);
+}
+input:hover, select:hover, textarea:hover { border-color: var(--c-text-dim); }
+input:focus, select:focus, textarea:focus { border-color: var(--c-accent); outline: 2px solid transparent; box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 30%, transparent); }
+input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--c-danger); }
+
+label { font-size: 0.8rem; font-weight: 600; color: var(--c-text-dim); display: block; margin-bottom: 2px; }
+
+fieldset {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-m);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  margin-bottom: var(--space-4);
+  min-inline-size: 0;
+}
+legend { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--c-text-dim); padding: 0 var(--space-2); }
+
+progress { width: 100%; height: 8px; accent-color: var(--c-accent); }

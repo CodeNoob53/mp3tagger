@@ -1,0 +1,31 @@
+{
+  "name": "mp3tagger",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Browser-based MP3/WAV metadata editor and audio converter. All processing happens locally.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fixtures": "node tests/fixtures/generate-fixtures.mjs",
+    "deploy": "npm run build && npx gh-pages -d dist"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "fflate": "^0.8.2",
+    "mp3tag.js": "^3.17.0",
+    "music-metadata": "^11.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.0.0",
+    "happy-dom": "^20.10.6",
+    "vite": "^7.0.0",
+    "vitest": "^3.0.0"
+  }
+}

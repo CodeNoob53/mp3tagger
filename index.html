@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Edit MP3/WAV metadata and convert between formats — entirely in your browser. No uploads, no server." />
+  <meta name="color-scheme" content="light dark" />
+  <title>Aurela Tag Studio — MP3/WAV Tagger &amp; Converter</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="app-header">
+    <div class="app-header__brand">
+      <svg class="app-logo" viewBox="0 0 24 24" aria-hidden="true" width="28" height="28"><path fill="currentColor" d="M9 3v10.55A4 4 0 1 0 11 17V7h6v6.55A4 4 0 1 0 19 17V3H9z"/></svg>
+      <h1>Aurela Tag Studio</h1>
+      <span class="app-tagline">MP3 / WAV metadata editor &amp; converter</span>
+    </div>
+    <div class="app-header__actions">
+      <span class="privacy-badge" title="Files are processed locally in your browser and never uploaded.">100% local</span>
+      <button type="button" id="theme-toggle" class="btn btn--icon" aria-label="Switch color theme" title="Switch theme">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 0 1-4.4 2.26 5.4 5.4 0 0 1-5.4-5.4c0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" class="app-main">
+
+    <!-- Import -->
+    <section class="panel" aria-labelledby="import-heading">
+      <h2 id="import-heading" class="visually-hidden">Import files</h2>
+      <div id="drop-zone" class="drop-zone" role="group" aria-label="File drop zone">
+        <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" class="drop-zone__icon"><path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <p class="drop-zone__title">Drag &amp; drop MP3 or WAV files here</p>
+        <p class="drop-zone__hint">Files never leave your device — all processing is local.</p>
+        <button type="button" id="browse-btn" class="btn btn--primary">Choose files</button>
+        <input type="file" id="file-input" accept=".mp3,.wav,audio/mpeg,audio/wav,audio/x-wav" multiple class="visually-hidden" />
+      </div>
+    </section>
+
+    <!-- File list -->
+    <section class="panel" aria-labelledby="files-heading" id="files-section" hidden>
+      <div class="panel__header">
+        <h2 id="files-heading">Files <span id="file-count" class="count-badge" aria-live="polite"></span></h2>
+        <div class="panel__toolbar" role="toolbar" aria-label="File actions">
+          <button type="button" id="select-all-btn" class="btn btn--ghost">Select all</button>
+          <button type="button" id="batch-edit-btn" class="btn btn--ghost" disabled>Batch edit…</button>
+          <button type="button" id="export-selected-btn" class="btn btn--ghost" disabled>Export selected</button>
+          <button type="button" id="export-zip-btn" class="btn btn--ghost" disabled>Export ZIP</button>
+          <button type="button" id="clear-session-btn" class="btn btn--danger-ghost">Clear session</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="file-table" aria-describedby="files-heading">
+          <thead>
+            <tr>
+              <th scope="col" class="col-check"><span class="visually-hidden">Select</span></th>
+              <th scope="col" class="col-art"><span class="visually-hidden">Cover</span></th>
+              <th scope="col">Name</th>
+              <th scope="col">Format</th>
+              <th scope="col">Duration</th>
+              <th scope="col">Bitrate</th>
+              <th scope="col">Sample rate</th>
+              <th scope="col">Ch</th>
+              <th scope="col">Size</th>
+              <th scope="col">Tags</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="file-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Editor -->
+    <section class="panel editor-grid" aria-labelledby="editor-heading" id="editor-section" hidden>
+      <h2 id="editor-heading" class="visually-hidden">Edit selected file</h2>
+
+      <div class="editor-col editor-col--tags">
+        <form id="tag-form" novalidate>
+          <div class="editor-head">
+            <h3 id="editing-filename" class="editing-filename">—</h3>
+            <p id="wav-compat-note" class="note note--warn" hidden></p>
+          </div>
+
+          <fieldset>
+            <legend>Basic</legend>
+            <div class="form-grid">
+              <div class="field field--wide"><label for="f-title">Title</label><input id="f-title" name="title" type="text" autocomplete="off" /></div>
+              <div class="field field--wide"><label for="f-artist">Artist</label><input id="f-artist" name="artist" type="text" autocomplete="off" /></div>
+              <div class="field field--wide"><label for="f-album">Album</label><input id="f-album" name="album" type="text" autocomplete="off" /></div>
+              <div class="field"><label for="f-albumArtist">Album artist</label><input id="f-albumArtist" name="albumArtist" type="text" /></div>
+              <div class="field"><label for="f-genre">Genre</label><input id="f-genre" name="genre" type="text" list="genre-list" /></div>
+              <div class="field field--xs"><label for="f-track">Track #</label><input id="f-track" name="track" type="text" inputmode="numeric" /></div>
+              <div class="field field--xs"><label for="f-totalTracks">of</label><input id="f-totalTracks" name="totalTracks" type="text" inputmode="numeric" /></div>
+              <div class="field field--xs"><label for="f-disc">Disc #</label><input id="f-disc" name="disc" type="text" inputmode="numeric" /></div>
+              <div class="field field--xs"><label for="f-totalDiscs">of</label><input id="f-totalDiscs" name="totalDiscs" type="text" inputmode="numeric" /></div>
+              <div class="field field--xs"><label for="f-year">Year</label><input id="f-year" name="year" type="text" inputmode="numeric" /></div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Details</legend>
+            <div class="form-grid">
+              <div class="field"><label for="f-composer">Composer</label><input id="f-composer" name="composer" type="text" /></div>
+              <div class="field"><label for="f-conductor">Conductor</label><input id="f-conductor" name="conductor" type="text" /></div>
+              <div class="field"><label for="f-remixer">Remixer</label><input id="f-remixer" name="remixer" type="text" /></div>
+              <div class="field"><label for="f-originalArtist">Original artist</label><input id="f-originalArtist" name="originalArtist" type="text" /></div>
+              <div class="field"><label for="f-originalAlbum">Original album</label><input id="f-originalAlbum" name="originalAlbum" type="text" /></div>
+              <div class="field"><label for="f-grouping">Grouping</label><input id="f-grouping" name="grouping" type="text" /></div>
+              <div class="field"><label for="f-subtitle">Subtitle</label><input id="f-subtitle" name="subtitle" type="text" /></div>
+              <div class="field"><label for="f-mood">Mood</label><input id="f-mood" name="mood" type="text" /></div>
+              <div class="field field--xs"><label for="f-bpm">BPM</label><input id="f-bpm" name="bpm" type="text" inputmode="numeric" /></div>
+              <div class="field"><label for="f-isrc">ISRC</label><input id="f-isrc" name="isrc" type="text" maxlength="15" /></div>
+              <div class="field field--xs"><label for="f-language">Language</label><input id="f-language" name="language" type="text" maxlength="3" placeholder="eng" /></div>
+              <div class="field"><label for="f-rating">Rating (0–5)</label><input id="f-rating" name="rating" type="number" min="0" max="5" step="1" /></div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Publishing</legend>
+            <div class="form-grid">
+              <div class="field"><label for="f-publisher">Publisher</label><input id="f-publisher" name="publisher" type="text" /></div>
+              <div class="field"><label for="f-copyright">Copyright</label><input id="f-copyright" name="copyright" type="text" /></div>
+              <div class="field"><label for="f-encodedBy">Encoded by</label><input id="f-encodedBy" name="encodedBy" type="text" /></div>
+              <div class="field field--wide"><label for="f-url">URL</label><input id="f-url" name="url" type="url" placeholder="https://…" /></div>
+              <div class="field field--wide"><label for="f-comment">Comment</label><textarea id="f-comment" name="comment" rows="2"></textarea></div>
+              <div class="field field--wide"><label for="f-lyrics">Lyrics</label><textarea id="f-lyrics" name="lyrics" rows="4"></textarea></div>
+            </div>
+          </fieldset>
+
+          <fieldset id="mp3-options-fieldset">
+            <legend>MP3 tag options</legend>
+            <div class="form-grid">
+              <div class="field">
+                <label for="f-id3version">ID3 version</label>
+                <select id="f-id3version" name="id3version">
+                  <option value="3" selected>ID3v2.3 — best compatibility (Windows, WMP)</option>
+                  <option value="4">ID3v2.4 — UTF-8, modern players</option>
+                </select>
+              </div>
+            </div>
+            <p class="note">v2.3 is the default because Windows Explorer and Windows Media Player ignore v2.4 tags. Unknown existing frames are preserved on save.</p>
+          </fieldset>
+
+          <div id="validation-output-wrap"><output id="validation-output" for="tag-form" aria-live="polite"></output></div>
+
+          <div class="form-actions">
+            <button type="submit" id="save-tags-btn" class="btn btn--primary">Save tags</button>
+            <button type="button" id="revert-tags-btn" class="btn btn--ghost">Revert</button>
+            <button type="button" id="download-file-btn" class="btn" disabled>Download result</button>
+          </div>
+          <p class="note">Saving tags rewrites only the tag section — the audio stream is copied without re-encoding. Your original file on disk is never modified.</p>
+        </form>
+      </div>
+
+      <div class="editor-col editor-col--side">
+        <section aria-labelledby="artwork-heading" class="subpanel">
+          <h3 id="artwork-heading">Cover art</h3>
+          <div id="artwork-area" class="artwork-area">
+            <div id="artwork-preview" class="artwork-preview" tabindex="0" role="button" aria-label="Add or replace cover art. Drop an image, paste from clipboard, or press Enter to browse.">
+              <img id="artwork-img" alt="" hidden />
+              <span id="artwork-placeholder" class="artwork-placeholder">No cover<br /><small>drop / paste / click</small></span>
+            </div>
+            <p id="artwork-info" class="note" aria-live="polite"></p>
+            <div class="artwork-actions">
+              <button type="button" id="artwork-add-btn" class="btn btn--ghost">Add / Replace…</button>
+              <button type="button" id="artwork-edit-btn" class="btn btn--ghost" disabled>Adjust…</button>
+              <button type="button" id="artwork-export-btn" class="btn btn--ghost" disabled>Save as JPG</button>
+              <button type="button" id="artwork-remove-btn" class="btn btn--danger-ghost" disabled>Remove</button>
+            </div>
+            <input type="file" id="artwork-input" accept="image/jpeg,image/png,image/webp" class="visually-hidden" />
+            <p id="wav-artwork-note" class="note note--warn" hidden>WAV has no standard cover-art field. You can embed an experimental <code>id3</code> chunk (works in VLC/foobar2000/MusicBee, ignored by Windows), export the cover as a separate JPG, or convert to FLAC (planned).</p>
+            <label id="wav-id3-chunk-label" class="check-label" hidden><input type="checkbox" id="wav-id3-chunk" /> Write experimental <code>id3</code> chunk into WAV</label>
+          </div>
+        </section>
+
+        <section aria-labelledby="tech-heading" class="subpanel">
+          <h3 id="tech-heading">Technical info</h3>
+          <dl id="tech-info" class="tech-info"></dl>
+          <div id="wav-chunks-wrap" hidden>
+            <h4>WAV metadata chunks</h4>
+            <ul id="wav-chunks" class="chunk-list"></ul>
+          </div>
+        </section>
+
+        <section aria-labelledby="convert-heading" class="subpanel" id="conversion-panel">
+          <h3 id="convert-heading">Convert</h3>
+          <form id="conversion-form">
+            <p id="conversion-explain" class="note"></p>
+            <div id="mp3-to-wav-opts" hidden>
+              <div class="form-grid">
+                <div class="field"><label for="c-samplerate">Sample rate</label>
+                  <select id="c-samplerate"><option value="source" selected>Same as source</option><option value="44100">44.1 kHz</option><option value="48000">48 kHz</option><option value="88200">88.2 kHz</option><option value="96000">96 kHz</option></select></div>
+                <div class="field"><label for="c-bitdepth">Bit depth</label>
+                  <select id="c-bitdepth"><option value="16" selected>16-bit PCM</option><option value="24">24-bit PCM</option></select></div>
+                <div class="field"><label for="c-channels">Channels</label>
+                  <select id="c-channels"><option value="source" selected>Same as source</option><option value="1">Mono</option><option value="2">Stereo</option></select></div>
+              </div>
+            </div>
+            <div id="wav-to-mp3-opts" hidden>
+              <div class="form-grid">
+                <div class="field"><label for="c-mode">Mode</label>
+                  <select id="c-mode"><option value="cbr" selected>CBR — constant bitrate</option><option value="vbr">VBR — variable bitrate</option></select></div>
+                <div class="field" id="c-cbr-field"><label for="c-bitrate">Bitrate</label>
+                  <select id="c-bitrate"><option value="128">128 kbps</option><option value="192">192 kbps</option><option value="256">256 kbps</option><option value="320" selected>320 kbps</option></select></div>
+                <div class="field" id="c-vbr-field" hidden><label for="c-vbrq">VBR quality (LAME -V)</label>
+                  <select id="c-vbrq"><option value="0" selected>V0 ≈ 245 kbps (best)</option><option value="2">V2 ≈ 190 kbps</option><option value="4">V4 ≈ 165 kbps</option><option value="6">V6 ≈ 115 kbps</option></select></div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="convert-btn" class="btn btn--primary">Convert</button>
+            </div>
+            <p class="note" id="ffmpeg-note">The FFmpeg engine (~31 MB) is downloaded once when you first convert, then cached by your browser.</p>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section class="panel" id="progress-section" aria-labelledby="progress-heading" hidden>
+      <h2 id="progress-heading">Operations</h2>
+      <ul id="progress-list" class="progress-list" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p><strong>Privacy:</strong> all processing happens locally in your browser. Audio and images are never uploaded anywhere. The only network request after page load is the one-time FFmpeg engine download (on first conversion).</p>
+    <p>MP3 → WAV decodes to PCM without further quality loss (it cannot restore what MP3 already discarded). WAV → MP3 is lossy re-encoding.</p>
+  </footer>
+
+  <!-- Artwork editor dialog -->
+  <dialog id="artwork-dialog" class="dialog dialog--wide" aria-labelledby="artwork-dialog-title">
+    <form method="dialog" class="dialog__head"><h2 id="artwork-dialog-title">Adjust cover art</h2><button type="submit" class="btn btn--icon" aria-label="Close" value="cancel">✕</button></form>
+    <div class="cropper-layout">
+      <div class="cropper-stage-wrap">
+        <canvas id="cropper-canvas" class="cropper-canvas" tabindex="0" aria-label="Crop area. Use arrow keys to move, plus and minus to zoom, R to rotate."></canvas>
+      </div>
+      <div class="cropper-controls">
+        <fieldset><legend>Fit</legend>
+          <div class="btn-row" role="group" aria-label="Fit mode">
+            <button type="button" class="btn btn--ghost" id="crop-cover-btn">Cover</button>
+            <button type="button" class="btn btn--ghost" id="crop-contain-btn">Contain</button>
+          </div>
+        </fieldset>
+        <fieldset><legend>Transform</legend>
+          <div class="field"><label for="crop-zoom">Zoom</label><input type="range" id="crop-zoom" min="0" max="100" value="0" step="1" /></div>
+          <div class="btn-row">
+            <button type="button" class="btn btn--ghost" id="crop-rotate-btn">Rotate 90°</button>
+            <button type="button" class="btn btn--ghost" id="crop-center-btn">Center</button>
+            <button type="button" class="btn btn--ghost" id="crop-reset-btn">Reset</button>
+          </div>
+        </fieldset>
+        <fieldset><legend>Output</legend>
+          <div class="field"><label for="crop-size">Size</label>
+            <select id="crop-size">
+              <option value="300">300 × 300</option>
+              <option value="500" selected>500 × 500</option>
+              <option value="800">800 × 800</option>
+              <option value="1000">1000 × 1000</option>
+              <option value="original">Original resolution (may be huge)</option>
+            </select></div>
+          <div class="field"><label for="crop-limit">Max embedded size</label>
+            <select id="crop-limit">
+              <option value="auto" selected>Auto — min(1 MB, 5% of audio)</option>
+              <option value="256">256 KB</option>
+              <option value="512">512 KB</option>
+              <option value="1024">1 MB</option>
+              <option value="2048">2 MB (not recommended)</option>
+            </select></div>
+          <p id="crop-stats" class="note" aria-live="polite"></p>
+        </fieldset>
+        <div class="form-actions">
+          <button type="button" id="crop-apply-btn" class="btn btn--primary">Apply</button>
+          <button type="button" id="crop-cancel-btn" class="btn btn--ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Batch edit dialog -->
+  <dialog id="batch-dialog" class="dialog dialog--wide" aria-labelledby="batch-dialog-title">
+    <form method="dialog" class="dialog__head"><h2 id="batch-dialog-title">Batch edit</h2><button type="submit" class="btn btn--icon" aria-label="Close" value="cancel">✕</button></form>
+    <form id="batch-form" novalidate>
+      <p class="note">Empty fields are left untouched. Tick “clear” to explicitly erase a field on all selected files.</p>
+      <div class="form-grid" id="batch-fields"></div>
+      <fieldset><legend>Automation</legend>
+        <label class="check-label"><input type="checkbox" id="batch-autonumber" /> Auto-number tracks (1…N in list order)</label>
+        <div class="field"><label for="batch-title-template">Title from filename template</label>
+          <input id="batch-title-template" type="text" placeholder="e.g. {artist} - {title}" />
+          <small class="note">Parses filenames like “Artist - Title.mp3” into tag fields.</small></div>
+        <div class="field"><label for="batch-name-template">Rename files from tags</label>
+          <select id="batch-name-template">
+            <option value="">Keep original names</option>
+            <option value="{artist} - {title}">{artist} - {title}</option>
+            <option value="{track} - {title}">{track} - {title}</option>
+            <option value="{track} - {artist} - {title}">{track} - {artist} - {title}</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input id="batch-name-custom" type="text" placeholder="{artist} - {album} - {title}" hidden aria-label="Custom filename template" /></div>
+      </fieldset>
+      <div class="form-actions">
+        <button type="button" id="batch-preview-btn" class="btn btn--primary">Preview changes</button>
+      </div>
+      <div id="batch-preview" class="batch-preview" hidden>
+        <h3>Preview</h3>
+        <div class="table-wrap"><table class="file-table" id="batch-preview-table"></table></div>
+        <div class="form-actions">
+          <button type="button" id="batch-apply-btn" class="btn btn--primary">Apply to selected files</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Confirmation dialog -->
+  <dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-message"></p>
+    <div class="form-actions">
+      <button type="button" id="confirm-ok" class="btn btn--primary"></button>
+      <button type="button" id="confirm-cancel" class="btn btn--ghost">Cancel</button>
+    </div>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+  <datalist id="genre-list">
+    <option>Rock</option><option>Pop</option><option>Hip-Hop</option><option>Jazz</option><option>Classical</option>
+    <option>Electronic</option><option>Ambient</option><option>Metal</option><option>Folk</option><option>Blues</option>
+    <option>Country</option><option>Reggae</option><option>Soundtrack</option><option>Techno</option><option>House</option>
+  </datalist>
+</body>
+</html>
